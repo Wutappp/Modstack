@@ -132,7 +132,51 @@ GROUP BY m.mod_id, m.title
 HAVING AVG(r.rating) < 3
 ORDER BY average_rating ASC;
 
--- Remaining intermediate statements: 13-21
+-- ----------------------------------------------------------------------------
+-- Statement 13: View Most Popular Mods
+-- Explanation: Display the 10 most popular mods based on their total download 
+-- counts, including their game names and average user ratings
+-- ----------------------------------------------------------------------------
+SELECT
+    m.mod_id,
+    m.title AS mod_title,
+    g.title AS game_title,
+    m.download_count,
+    ROUND(AVG(r.rating), 2) AS average_rating
+FROM Mods m
+JOIN Games g
+    ON m.game_id = g.game_id
+LEFT JOIN Reviews r
+    ON m.mod_id = r.mod_id
+GROUP BY
+    m.mod_id,
+    m.title,
+    g.title,
+    m.download_count
+ORDER BY
+    m.download_count DESC,
+    m.mod_id ASC
+LIMIT 10;
+
+-- ----------------------------------------------------------------------------
+-- Statement 14: View Games with the Most Mods
+-- Explanation: Counts the total number of mods associated with each
+-- game and ranks games from highest to lowest.
+-- ----------------------------------------------------------------------------
+
+SELECT
+    g.game_id,
+    g.title AS game_title,
+    COUNT(m.mod_id) AS total_mods
+FROM Games g
+LEFT JOIN Mods m
+    ON g.game_id = m.game_id
+GROUP BY
+    g.game_id,
+    g.title
+ORDER BY
+    total_mods DESC,
+    g.title ASC;
 
 -- ============================================================================
 -- SECTION 3: COMPLEX STATEMENTS
@@ -155,4 +199,41 @@ WHERE NOT EXISTS (
 )
 ORDER BY u.username;
 
--- Remaining complex statements: 23-32
+-- ----------------------------------------------------------------------------
+-- Statement 23: View Mod Categories Statistics
+-- Explanation: Generates a report showing the total number of mods,
+-- total downloads, average rating, and percentage of mods in each
+-- category using CTEs, aggregation, and a subquery.
+-- ----------------------------------------------------------------------------
+
+WITH ModRatings AS (
+    SELECT
+        mod_id,
+        AVG(rating) AS average_rating
+    FROM Reviews
+    GROUP BY mod_id
+),
+CategoryStats AS (
+    SELECT
+        m.category,
+        COUNT(m.mod_id) AS total_mods,
+        COALESCE(SUM(m.download_count), 0) AS total_downloads,
+        ROUND(AVG(mr.average_rating), 2) AS average_rating
+    FROM Mods m
+    LEFT JOIN ModRatings mr
+        ON m.mod_id = mr.mod_id
+    GROUP BY m.category
+)
+SELECT
+    category,
+    total_mods,
+    total_downloads,
+    average_rating,
+    ROUND(
+        100.0 * total_mods /
+        NULLIF((SELECT COUNT(*) FROM Mods), 0),
+        2
+    ) AS percentage_of_mods
+FROM CategoryStats
+ORDER BY total_mods DESC, category ASC;
+

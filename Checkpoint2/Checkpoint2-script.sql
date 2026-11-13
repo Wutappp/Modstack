@@ -420,10 +420,11 @@ ORDER BY total_mods DESC, category ASC;
 
 -- ----------------------------------------------------------------------------
 -- Statement 24: Multi-Criteria Gamer Mod Search With Compatibility and Ratings
--- Explanation: Joins Mods, Games, Users, Compatibility, Game_Versions, and
--- Reviews to let gamers search approved mods compatible with the latest game
--- versions alongside their average rating and review count.
+-- Explanation: Finds approved mods compatible with the latest game version.
+-- Displays the game, version, mod, creator, category, downloads,
+-- average rating, and total reviews.
 -- ----------------------------------------------------------------------------
+
 SELECT
     g.title AS game_title,
     gv.version_number AS compatible_version,
@@ -446,7 +447,13 @@ JOIN Game_Versions gv
 LEFT JOIN Reviews r
     ON m.mod_id = r.mod_id
 WHERE m.status = 'approved'
-  AND c.is_compatible = 1
+    AND c.is_compatible = 1
+    AND gv.game_id = m.game_id
+    AND gv.release_date = (
+        SELECT MAX(gv2.release_date)
+        FROM Game_Versions gv2
+        WHERE gv2.game_id = g.game_id
+    )
 GROUP BY
     g.title,
     gv.version_number,
@@ -579,22 +586,36 @@ ORDER BY download_rank ASC;
 
 -- ----------------------------------------------------------------------------
 -- Statement 29: Game Compatibility Coverage Report
--- Explanation: Calculates how many total game versions exist per game and how
--- many compatible mod-version pairings have been verified across each game.
+-- Explanation: Reports the total game versions, compatible
+-- mod-version pairings, and incompatible mod-version pairings
+-- for each game.
 -- ----------------------------------------------------------------------------
+
 SELECT
     g.game_id,
     g.title AS game_title,
     COUNT(DISTINCT gv.game_version_id) AS total_versions,
-    COUNT(DISTINCT CASE WHEN c.is_compatible = 1 THEN c.mod_id END) AS compatible_mods_count,
-    COUNT(DISTINCT CASE WHEN c.is_compatible = 0 THEN c.mod_id END) AS incompatible_mods_count
+    COUNT(DISTINCT CASE
+        WHEN c.is_compatible = 1
+        THEN CAST(c.mod_id AS TEXT) || ':' ||
+             CAST(c.game_version_id AS TEXT)
+    END) AS compatible_pairings_count,
+    COUNT(DISTINCT CASE
+        WHEN c.is_compatible = 0
+        THEN CAST(c.mod_id AS TEXT) || ':' ||
+             CAST(c.game_version_id AS TEXT)
+    END) AS incompatible_pairings_count
 FROM Games g
 LEFT JOIN Game_Versions gv
     ON g.game_id = gv.game_id
 LEFT JOIN Compatibility c
     ON gv.game_version_id = c.game_version_id
-GROUP BY g.game_id, g.title
-ORDER BY compatible_mods_count DESC, g.title ASC;
+GROUP BY
+    g.game_id,
+    g.title
+ORDER BY
+    compatible_pairings_count DESC,
+    g.title ASC;
 
 -- ----------------------------------------------------------------------------
 -- Statement 30: Recommended Mods for a Specific Gamer Based on Past High Ratings

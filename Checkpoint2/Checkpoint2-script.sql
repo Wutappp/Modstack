@@ -9,40 +9,55 @@
 -- SCHEMA MODIFICATIONS SINCE CHECKPOINT 1
 -- ============================================================================
 -- Modifications:
--- 1. No modifications made to the Checkpoint 1 schema.
---    (Confirm this before submission.)
+-- 1. Merged Mod_Releases attributes into Mods as finalized in Checkpoint 1
+--    (6 relations: Users, Games, Game_Versions, Mods, Compatibility, Reviews).
 -- ============================================================================
 
 -- ============================================================================
 -- MEMBER CONTRIBUTIONS SUMMARY (GROUPED AT THE TOP)
 -- ============================================================================
--- Replace percentages with actual contributions.
--- Each statement must total 100%.
-
 -- SECTION 1: SIMPLE STATEMENTS
--- Statement 01: Kevin Wu: XX%, Alizeh Jahan: XX%
--- Statement 02: Kevin Wu: XX%, Alizeh Jahan: XX%
--- Statement 03: Kevin Wu: XX%, Alizeh Jahan: XX%
--- Statement 04: Kevin Wu: XX%, Alizeh Jahan: XX%
--- Statement 05: Kevin Wu: XX%, Alizeh Jahan: XX%
+-- Statement 01: Kevin Wu: 100%, Alizeh Jahan: 0%
+-- Statement 02: Kevin Wu: 100%, Alizeh Jahan: 0%
+-- Statement 03: Kevin Wu: 100%, Alizeh Jahan: 0%
+-- Statement 04: Kevin Wu: 100%, Alizeh Jahan: 0%
+-- Statement 05: Kevin Wu: 100%, Alizeh Jahan: 0%
+-- Statement 06: Kevin Wu: 0%, Alizeh Jahan: 100%
+-- Statement 07: Kevin Wu: 0%, Alizeh Jahan: 100%
+-- Statement 08: Kevin Wu: 0%, Alizeh Jahan: 100%
+-- Statement 09: Kevin Wu: 0%, Alizeh Jahan: 100%
+-- Statement 10: Kevin Wu: 0%, Alizeh Jahan: 100%
 
 -- SECTION 2: INTERMEDIATE STATEMENTS
--- Statement 11: Kevin Wu: XX%, Alizeh Jahan: XX%
--- Statement 12: Kevin Wu: XX%, Alizeh Jahan: XX%
--- Statement 13: Kevin Wu: XX%, Alizeh Jahan: XX%
--- Statement 14: Kevin Wu: XX%, Alizeh Jahan: XX%
--- Statement 15: Kevin Wu: XX%, Alizeh Jahan: XX%
--- Statement 16: Kevin Wu: XX%, Alizeh Jahan: XX%
+-- Statement 11: Kevin Wu: 100%, Alizeh Jahan: 0%
+-- Statement 12: Kevin Wu: 100%, Alizeh Jahan: 0%
+-- Statement 13: Kevin Wu: 100%, Alizeh Jahan: 0%
+-- Statement 14: Kevin Wu: 100%, Alizeh Jahan: 0%
+-- Statement 15: Kevin Wu: 0%, Alizeh Jahan: 100%
+-- Statement 16: Kevin Wu: 0%, Alizeh Jahan: 100%
+-- Statement 17: Kevin Wu: 0%, Alizeh Jahan: 100%
+-- Statement 18: Kevin Wu: 0%, Alizeh Jahan: 100%
+-- Statement 19: Kevin Wu: 0%, Alizeh Jahan: 100%
+-- Statement 20: Kevin Wu: 0%, Alizeh Jahan: 100%
+-- Statement 21: Kevin Wu: 0%, Alizeh Jahan: 100%
 
 -- SECTION 3: COMPLEX STATEMENTS
--- Statement 22: Kevin Wu: XX%, Alizeh Jahan: XX%
-
--- Add all remaining team statements (01-32)
--- to the contribution summary.
+-- Statement 22: Kevin Wu: 100%, Alizeh Jahan: 0%
+-- Statement 23: Kevin Wu: 100%, Alizeh Jahan: 0%
+-- Statement 24: Kevin Wu: 0%, Alizeh Jahan: 100%
+-- Statement 25: Kevin Wu: 0%, Alizeh Jahan: 100%
+-- Statement 26: Kevin Wu: 0%, Alizeh Jahan: 100%
+-- Statement 27: Kevin Wu: 0%, Alizeh Jahan: 100%
+-- Statement 28: Kevin Wu: 0%, Alizeh Jahan: 100%
+-- Statement 29: Kevin Wu: 0%, Alizeh Jahan: 100%
+-- Statement 30: Kevin Wu: 0%, Alizeh Jahan: 100%
+-- Statement 31: Kevin Wu: 0%, Alizeh Jahan: 100%
+-- Statement 32: Kevin Wu: 0%, Alizeh Jahan: 100%
 
 -- ============================================================================
 -- DATABASE SETTINGS
 -- ============================================================================
+PRAGMA foreign_keys = ON;
 
 -- ============================================================================
 -- SECTION 1: SIMPLE STATEMENTS
@@ -93,7 +108,63 @@ SET status = 'rejected'
 WHERE mod_id = 2
   AND status = 'pending';
 
--- Remaining simple statements: 06-10
+-- ----------------------------------------------------------------------------
+-- Statement 06: Browse Approved Graphics Mods
+-- Explanation: Allows gamers to filter approved mods within the Graphics
+-- category, sorted by download count from highest to lowest.
+-- ----------------------------------------------------------------------------
+SELECT mod_id, game_id, title, version_tag, file_size_mb, download_count, download_url
+FROM Mods
+WHERE status = 'approved'
+  AND category = 'Graphics'
+ORDER BY download_count DESC;
+
+-- ----------------------------------------------------------------------------
+-- Statement 07: Publish a New Mod
+-- Explanation: Allows a mod developer (creator_id = 2, alex) to submit a new
+-- mod into the Mods table with an initial 'pending' status.
+-- ----------------------------------------------------------------------------
+INSERT INTO Mods (
+    mod_id, game_id, creator_id, title, description, category,
+    status, created_at, version_tag, download_url, file_size_mb,
+    download_count, uploaded_at
+)
+VALUES (
+    36, 1, 2, 'Dynamic Shaders', 'Adds real-time shadows and water reflections',
+    'Graphics', 'pending', '2026-08-01', '1.0', 'mods/dynamicshaders.zip',
+    42.5, 0, '2026-08-01'
+);
+
+-- ----------------------------------------------------------------------------
+-- Statement 08: Submit a Gamer Review
+-- Explanation: Allows a gamer (user_id = 5, taylor) to post a rating and
+-- comment for an approved mod (mod_id = 6, Dragon Expansion).
+-- ----------------------------------------------------------------------------
+INSERT INTO Reviews (review_id, user_id, mod_id, rating, comment, review_date)
+VALUES (33, 5, 6, 5, 'Runs smoothly with zero crashes!', '2026-08-02');
+
+-- ----------------------------------------------------------------------------
+-- Statement 09: Increment Download Count on Mod Download
+-- Explanation: Updates the download_count of an approved mod (mod_id = 11)
+-- when a gamer downloads the mod file.
+-- ----------------------------------------------------------------------------
+UPDATE Mods
+SET download_count = download_count + 1
+WHERE mod_id = 11
+  AND status = 'approved';
+
+-- ----------------------------------------------------------------------------
+-- Statement 10: Update Mod Release Version and File Details
+-- Explanation: Allows a mod developer to push a version update, new download
+-- archive URL, and updated file size for their mod (mod_id = 6).
+-- ----------------------------------------------------------------------------
+UPDATE Mods
+SET version_tag = '2.1',
+    download_url = 'mods/dragon_v2_1.zip',
+    file_size_mb = 64.0,
+    uploaded_at = '2026-08-05'
+WHERE mod_id = 6
+  AND creator_id = 2;
 
 -- ============================================================================
 -- SECTION 2: INTERMEDIATE STATEMENTS
@@ -134,7 +205,7 @@ ORDER BY average_rating ASC;
 
 -- ----------------------------------------------------------------------------
 -- Statement 13: View Most Popular Mods
--- Explanation: Display the 10 most popular mods based on their total download 
+-- Explanation: Display the 10 most popular mods based on their total download
 -- counts, including their game names and average user ratings
 -- ----------------------------------------------------------------------------
 SELECT
@@ -163,7 +234,6 @@ LIMIT 10;
 -- Explanation: Counts the total number of mods associated with each
 -- game and ranks games from highest to lowest.
 -- ----------------------------------------------------------------------------
-
 SELECT
     g.game_id,
     g.title AS game_title,
@@ -177,6 +247,118 @@ GROUP BY
 ORDER BY
     total_mods DESC,
     g.title ASC;
+
+-- ----------------------------------------------------------------------------
+-- Statement 15: Search Approved Mods for a Specific Game
+-- Explanation: Allows gamers to browse all approved mods for a chosen game
+-- ('Skyrim'), displaying creator username, category, version, and downloads.
+-- ----------------------------------------------------------------------------
+SELECT
+    m.mod_id,
+    m.title AS mod_title,
+    u.username AS creator_username,
+    m.category,
+    m.version_tag,
+    m.file_size_mb,
+    m.download_count,
+    m.download_url
+FROM Mods m
+JOIN Games g
+    ON m.game_id = g.game_id
+JOIN Users u
+    ON m.creator_id = u.user_id
+WHERE g.title = 'Skyrim'
+  AND m.status = 'approved'
+ORDER BY m.download_count DESC;
+
+-- ----------------------------------------------------------------------------
+-- Statement 16: Check Mod Compatibility for a Specific Game Version
+-- Explanation: Allows gamers to check which mods are marked compatible
+-- (is_compatible = 1) with a specific game version ('Cyberpunk 2077' v2.0).
+-- ----------------------------------------------------------------------------
+SELECT
+    g.title AS game_title,
+    gv.version_number AS game_version,
+    m.mod_id,
+    m.title AS mod_title,
+    m.version_tag AS mod_version,
+    c.tested_date
+FROM Compatibility c
+JOIN Mods m
+    ON c.mod_id = m.mod_id
+JOIN Game_Versions gv
+    ON c.game_version_id = gv.game_version_id
+JOIN Games g
+    ON gv.game_id = g.game_id
+WHERE g.title = 'Cyberpunk 2077'
+  AND gv.version_number = '2.0'
+  AND c.is_compatible = 1
+  AND m.status = 'approved'
+ORDER BY m.title ASC;
+
+-- ----------------------------------------------------------------------------
+-- Statement 17: View All Reviews for a Specific Mod
+-- Explanation: Retrieves all gamer ratings, comments, and reviewer usernames
+-- for a selected mod (mod_id = 21, Elden Ring HD), newest first.
+-- ----------------------------------------------------------------------------
+SELECT
+    r.review_id,
+    u.username AS reviewer,
+    r.rating,
+    r.comment,
+    r.review_date
+FROM Reviews r
+JOIN Users u
+    ON r.user_id = u.user_id
+WHERE r.mod_id = 21
+ORDER BY r.review_date DESC;
+
+-- ----------------------------------------------------------------------------
+-- Statement 18: Record New Mod Compatibility Entry
+-- Explanation: Allows a mod developer to add a compatibility test result
+-- linking mod_id = 11 (Cyberpunk Graphics) to game_version_id = 6 (v2.1).
+-- ----------------------------------------------------------------------------
+INSERT INTO Compatibility (mod_id, game_version_id, is_compatible, tested_date)
+VALUES (11, 6, 1, '2026-08-06');
+
+-- ----------------------------------------------------------------------------
+-- Statement 19: Update Existing Compatibility Status
+-- Explanation: Allows a mod developer to update a previously incompatible
+-- record (mod_id = 23 on game_version_id = 9) after fixing version issues.
+-- ----------------------------------------------------------------------------
+UPDATE Compatibility
+SET is_compatible = 1,
+    tested_date = '2026-08-07'
+WHERE mod_id = 23
+  AND game_version_id = 9;
+
+-- ----------------------------------------------------------------------------
+-- Statement 20: Mod Developer Portfolio Summary
+-- Explanation: Displays each mod developer's total published mods, total
+-- cumulative downloads, and average file size across their mods.
+-- ----------------------------------------------------------------------------
+SELECT
+    u.user_id,
+    u.username AS creator_username,
+    COUNT(m.mod_id) AS total_mods,
+    SUM(m.download_count) AS total_downloads,
+    ROUND(AVG(m.file_size_mb), 2) AS avg_file_size_mb
+FROM Users u
+JOIN Mods m
+    ON u.user_id = m.creator_id
+WHERE u.role = 'creator'
+GROUP BY u.user_id, u.username
+ORDER BY total_downloads DESC;
+
+-- ----------------------------------------------------------------------------
+-- Statement 21: Delete a Rejected Mod
+-- Explanation: Allows a mod developer to delete their rejected mod
+-- (mod_id = 18, Fallout Radio) which has no dependent reviews or compatibility rows.
+-- ----------------------------------------------------------------------------
+DELETE FROM Mods
+WHERE mod_id = 18
+  AND creator_id = 4
+  AND status = 'rejected';
 
 -- ============================================================================
 -- SECTION 3: COMPLEX STATEMENTS
@@ -205,7 +387,6 @@ ORDER BY u.username;
 -- total downloads, average rating, and percentage of mods in each
 -- category using CTEs, aggregation, and a subquery.
 -- ----------------------------------------------------------------------------
-
 WITH ModRatings AS (
     SELECT
         mod_id,
@@ -237,3 +418,246 @@ SELECT
 FROM CategoryStats
 ORDER BY total_mods DESC, category ASC;
 
+-- ----------------------------------------------------------------------------
+-- Statement 24: Multi-Criteria Gamer Mod Search With Compatibility and Ratings
+-- Explanation: Joins Mods, Games, Users, Compatibility, Game_Versions, and
+-- Reviews to let gamers search approved mods compatible with the latest game
+-- versions alongside their average rating and review count.
+-- ----------------------------------------------------------------------------
+SELECT
+    g.title AS game_title,
+    gv.version_number AS compatible_version,
+    m.mod_id,
+    m.title AS mod_title,
+    m.category,
+    u.username AS creator_username,
+    m.download_count,
+    COALESCE(ROUND(AVG(r.rating), 2), 0) AS average_rating,
+    COUNT(DISTINCT r.review_id) AS total_reviews
+FROM Mods m
+JOIN Games g
+    ON m.game_id = g.game_id
+JOIN Users u
+    ON m.creator_id = u.user_id
+JOIN Compatibility c
+    ON m.mod_id = c.mod_id
+JOIN Game_Versions gv
+    ON c.game_version_id = gv.game_version_id
+LEFT JOIN Reviews r
+    ON m.mod_id = r.mod_id
+WHERE m.status = 'approved'
+  AND c.is_compatible = 1
+GROUP BY
+    g.title,
+    gv.version_number,
+    m.mod_id,
+    m.title,
+    m.category,
+    u.username,
+    m.download_count
+ORDER BY
+    g.title ASC,
+    average_rating DESC,
+    m.download_count DESC;
+
+-- ----------------------------------------------------------------------------
+-- Statement 25: Top-Rated Mods Above Platform Average Rating
+-- Explanation: Uses a nested scalar subquery in the HAVING clause to identify
+-- approved mods whose average rating exceeds the overall platform average.
+-- ----------------------------------------------------------------------------
+SELECT
+    m.mod_id,
+    m.title AS mod_title,
+    g.title AS game_title,
+    ROUND(AVG(r.rating), 2) AS mod_avg_rating,
+    COUNT(r.review_id) AS review_count
+FROM Mods m
+JOIN Games g
+    ON m.game_id = g.game_id
+JOIN Reviews r
+    ON m.mod_id = r.mod_id
+WHERE m.status = 'approved'
+GROUP BY m.mod_id, m.title, g.title
+HAVING AVG(r.rating) > (
+    SELECT AVG(rating)
+    FROM Reviews
+)
+ORDER BY mod_avg_rating DESC, review_count DESC;
+
+-- ----------------------------------------------------------------------------
+-- Statement 26: Mods Missing Compatibility Verification for Latest Game Version
+-- Explanation: Uses a correlated subquery to find approved mods that have not
+-- yet been tested against the most recent release_date version of their game.
+-- ----------------------------------------------------------------------------
+SELECT
+    m.mod_id,
+    m.title AS mod_title,
+    g.title AS game_title,
+    u.username AS creator_username,
+    gv.version_number AS latest_game_version
+FROM Mods m
+JOIN Games g
+    ON m.game_id = g.game_id
+JOIN Users u
+    ON m.creator_id = u.user_id
+JOIN Game_Versions gv
+    ON g.game_id = gv.game_id
+WHERE m.status = 'approved'
+  AND gv.release_date = (
+      SELECT MAX(gv2.release_date)
+      FROM Game_Versions gv2
+      WHERE gv2.game_id = g.game_id
+  )
+  AND NOT EXISTS (
+      SELECT 1
+      FROM Compatibility c
+      WHERE c.mod_id = m.mod_id
+        AND c.game_version_id = gv.game_version_id
+  )
+ORDER BY g.title ASC, m.title ASC;
+
+-- ----------------------------------------------------------------------------
+-- Statement 27: Gamer Activity and Review Engagement Leaderboard
+-- Explanation: Aggregates review activity per gamer using LEFT JOIN and CASE
+-- expressions to classify positive (4-5 star) vs critical (1-3 star) reviews.
+-- ----------------------------------------------------------------------------
+SELECT
+    u.user_id,
+    u.username,
+    COUNT(r.review_id) AS reviews_written,
+    COALESCE(ROUND(AVG(r.rating), 2), 0) AS avg_rating_given,
+    SUM(CASE WHEN r.rating >= 4 THEN 1 ELSE 0 END) AS positive_reviews,
+    SUM(CASE WHEN r.rating <= 3 THEN 1 ELSE 0 END) AS critical_reviews
+FROM Users u
+LEFT JOIN Reviews r
+    ON u.user_id = r.user_id
+WHERE u.role = 'user'
+GROUP BY u.user_id, u.username
+ORDER BY reviews_written DESC, u.username ASC;
+
+-- ----------------------------------------------------------------------------
+-- Statement 28: Mod Developer Performance Dashboard With Ranking
+-- Explanation: Uses CTEs and a window function (RANK) to evaluate each
+-- creator's approved mods, total downloads, and weighted rating performance.
+-- ----------------------------------------------------------------------------
+WITH CreatorMods AS (
+    SELECT
+        u.user_id,
+        u.username,
+        COUNT(m.mod_id) AS approved_mods,
+        COALESCE(SUM(m.download_count), 0) AS total_downloads
+    FROM Users u
+    JOIN Mods m
+        ON u.user_id = m.creator_id
+    WHERE u.role = 'creator'
+      AND m.status = 'approved'
+    GROUP BY u.user_id, u.username
+),
+CreatorRatings AS (
+    SELECT
+        m.creator_id,
+        ROUND(AVG(r.rating), 2) AS avg_creator_rating,
+        COUNT(r.review_id) AS total_reviews_received
+    FROM Mods m
+    JOIN Reviews r
+        ON m.mod_id = r.mod_id
+    WHERE m.status = 'approved'
+    GROUP BY m.creator_id
+)
+SELECT
+    cm.user_id,
+    cm.username,
+    cm.approved_mods,
+    cm.total_downloads,
+    COALESCE(cr.avg_creator_rating, 0) AS avg_creator_rating,
+    COALESCE(cr.total_reviews_received, 0) AS total_reviews_received,
+    RANK() OVER (ORDER BY cm.total_downloads DESC) AS download_rank
+FROM CreatorMods cm
+LEFT JOIN CreatorRatings cr
+    ON cm.user_id = cr.creator_id
+ORDER BY download_rank ASC;
+
+-- ----------------------------------------------------------------------------
+-- Statement 29: Game Compatibility Coverage Report
+-- Explanation: Calculates how many total game versions exist per game and how
+-- many compatible mod-version pairings have been verified across each game.
+-- ----------------------------------------------------------------------------
+SELECT
+    g.game_id,
+    g.title AS game_title,
+    COUNT(DISTINCT gv.game_version_id) AS total_versions,
+    COUNT(DISTINCT CASE WHEN c.is_compatible = 1 THEN c.mod_id END) AS compatible_mods_count,
+    COUNT(DISTINCT CASE WHEN c.is_compatible = 0 THEN c.mod_id END) AS incompatible_mods_count
+FROM Games g
+LEFT JOIN Game_Versions gv
+    ON g.game_id = gv.game_id
+LEFT JOIN Compatibility c
+    ON gv.game_version_id = c.game_version_id
+GROUP BY g.game_id, g.title
+ORDER BY compatible_mods_count DESC, g.title ASC;
+
+-- ----------------------------------------------------------------------------
+-- Statement 30: Recommended Mods for a Specific Gamer Based on Past High Ratings
+-- Explanation: Recommends approved mods in the same game or category as mods
+-- that gamer user_id = 8 (jamie) previously rated 4 or higher, excluding mods
+-- they have already reviewed.
+-- ----------------------------------------------------------------------------
+SELECT DISTINCT
+    m.mod_id,
+    m.title AS recommended_mod,
+    g.title AS game_title,
+    m.category,
+    m.download_count
+FROM Mods m
+JOIN Games g
+    ON m.game_id = g.game_id
+WHERE m.status = 'approved'
+  AND (
+      m.game_id IN (
+          SELECT m2.game_id
+          FROM Reviews r2
+          JOIN Mods m2 ON r2.mod_id = m2.mod_id
+          WHERE r2.user_id = 8 AND r2.rating >= 4
+      )
+      OR m.category IN (
+          SELECT m3.category
+          FROM Reviews r3
+          JOIN Mods m3 ON r3.mod_id = m3.mod_id
+          WHERE r3.user_id = 8 AND r3.rating >= 4
+      )
+  )
+  AND m.mod_id NOT IN (
+      SELECT r4.mod_id
+      FROM Reviews r4
+      WHERE r4.user_id = 8
+  )
+ORDER BY m.download_count DESC
+LIMIT 10;
+
+-- ----------------------------------------------------------------------------
+-- Statement 31: Bulk Mark Old Pending Mods as Approved by Trusted Creator
+-- Explanation: Uses an IN subquery to approve pending mods created by trusted
+-- developers who already have at least 3 approved mods on the platform.
+-- ----------------------------------------------------------------------------
+UPDATE Mods
+SET status = 'approved'
+WHERE status = 'pending'
+  AND creator_id IN (
+      SELECT creator_id
+      FROM Mods
+      WHERE status = 'approved'
+      GROUP BY creator_id
+      HAVING COUNT(mod_id) >= 3
+  );
+
+-- ----------------------------------------------------------------------------
+-- Statement 32: Clean Up Incompatible Records for Rejected Mods
+-- Explanation: Uses a subquery to delete compatibility entries associated
+-- with any mod whose status has been marked as 'rejected'.
+-- ----------------------------------------------------------------------------
+DELETE FROM Compatibility
+WHERE mod_id IN (
+    SELECT mod_id
+    FROM Mods
+    WHERE status = 'rejected'
+);

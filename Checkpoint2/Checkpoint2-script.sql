@@ -44,12 +44,12 @@
 -- SECTION 3: COMPLEX STATEMENTS
 -- Statement 22: Kevin Wu: 100%, Alizeh Jahan: 0%
 -- Statement 23: Kevin Wu: 100%, Alizeh Jahan: 0%
--- Statement 24: Kevin Wu: 0%, Alizeh Jahan: 100%
+-- Statement 24: Kevin Wu: 20%, Alizeh Jahan: 80%
 -- Statement 25: Kevin Wu: 0%, Alizeh Jahan: 100%
 -- Statement 26: Kevin Wu: 0%, Alizeh Jahan: 100%
 -- Statement 27: Kevin Wu: 0%, Alizeh Jahan: 100%
 -- Statement 28: Kevin Wu: 0%, Alizeh Jahan: 100%
--- Statement 29: Kevin Wu: 0%, Alizeh Jahan: 100%
+-- Statement 29: Kevin Wu: 20%, Alizeh Jahan: 80%
 -- Statement 30: Kevin Wu: 0%, Alizeh Jahan: 100%
 -- Statement 31: Kevin Wu: 0%, Alizeh Jahan: 100%
 -- Statement 32: Kevin Wu: 0%, Alizeh Jahan: 100%
